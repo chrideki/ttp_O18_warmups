@@ -31,3 +31,23 @@
 -- (using a CTE/subquery to return the number - eg. 1.99)
 
 -- CHECK OUT THE HINTS FILE IF YOU GET STUCK
+
+WITH rate_list AS(
+    SELECT
+        DISTINCT rental_rate
+    FROM film 
+    WHERE rating = 'PG-13'
+    ORDER BY rental_rate ASC
+) 
+SELECT title, rental_rate,
+                        CASE
+                        WHEN (rental_rate = (SELECT rental_rate
+                                                FROM rate_list
+                                                LIMIT 1)) THEN '0.10'
+                        WHEN (rental_rate = (SELECT rental_rate
+                                                FROM rate_list
+                                                OFFSET 1 LIMIT 1)) THEN '1.00'
+                        ELSE rental_rate
+                        END AS new_rental_rate
+FROM film 
+WHERE rating = 'PG-13';
